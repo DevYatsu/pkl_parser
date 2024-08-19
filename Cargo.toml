@@ -1,6 +1,6 @@
 [package]
 name = "pkl-parser"
-version = "0.1.1"
+version = "0.8.1"
 edition = "2021"
 license = "MIT"
 authors = ["Yatsu <dev.yatsu@gmail.com>"]
