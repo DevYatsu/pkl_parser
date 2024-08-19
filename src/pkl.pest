@@ -68,7 +68,7 @@ globbed_import = _{"import*"}
 fn_call = !{ (nullable_read|globbed_read|globbed_import|ident) ~ "(" ~ (expr ~ ("," ~ expr)* ~ ","?)? ~ ")"}
 
 // operations
-infix  = _{ add|sub|pow|mul|div|div_r|modulo|and|or|comp_equal|comp_not_equal|comp_greater|comp_greater_equal|comp_less|comp_less_equal|null_coalescing  }
+infix  = _{ add|sub|pow|mul|div|div_r|modulo|and|or|comp_equal|comp_not_equal|comp_greater_equal|comp_greater|comp_less_equal|comp_less|null_coalescing  }
 prefix = _{ neg|logical_not }
 postfix = { non_null }
 
@@ -167,7 +167,7 @@ basic_int = @ { ASCII_DIGIT+ ~ ("_" ~ ASCII_DIGIT+)* }
 int = { hex_int|octal_int|binary_int|basic_int }
 
 exponent = { ("e"|"E") ~ ("+"|"-")? ~ basic_int+ }
-float = @{ "NaN"|("Infinity"|(basic_int? ~ "." ~ basic_int+ ~ exponent? ))}
+float = @{ "NaN"|("Infinity"|(basic_int? ~ "." ~ basic_int+ ~ exponent?)|(basic_int~exponent))}
 
 // expr parsed for listing and mappings
 // then in evaluation step we check if the

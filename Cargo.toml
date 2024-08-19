@@ -12,8 +12,10 @@ keywords = ["pkl", "parser", "rust", "lexer", "ast"]
 categories = ["parsing"]
 
 [dependencies]
-logos = "0.14.0"
-hashbrown = "0.14.5"
-base64 = "0.22.1"
 pest = "2.7.11"
 pest_derive = "2.7.11"
+
+[dev-dependencies]
+reqwest = { version = "0.12.5", features = ["blocking"] }
+select = "0.6.0"
+regex = "1.10.6"
