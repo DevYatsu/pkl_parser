@@ -18,7 +18,9 @@ pub fn lang_ref_code() {
         .find(Name("code"))
         .filter(|n| {
             // removes exprs present in the doc
-            !n.text().contains("toMap")
+            n.attr("class")
+                .map(|x| !x.contains("expression"))
+                .unwrap_or(false)
                 && !n.text().starts_with("#")
                 && !n.text().starts_with("\"")
                 && n.attr("class")

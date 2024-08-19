@@ -212,11 +212,11 @@ extends = ${ "extends" ~ WHITESPACE_COMMENT+ ~ src}
 import_as = {ident}
 import = ${ (globbed_import|"import") ~ WHITESPACE_COMMENT+ ~ src ~ (WHITESPACE_COMMENT+ ~ "as" ~ WHITESPACE_COMMENT+ ~ import_as)? }
 
-arg = !{ ident ~ COLON ~ TYPE }
-function_args = !{ WHITESPACE_COMMENT* ~ arg ~ ("," ~ arg)* ~ ("," ~ WHITESPACE_COMMENT*)? }
+arg = !{ ident ~ (COLON ~ TYPE)? }
+function_args = !{ arg ~ ("," ~ arg)* }
 return_type_annotation = !{COLON ~ TYPE}
 function_name = {ident}
-function = ${ (PREFIX_KEYWORD ~ WHITESPACE_COMMENT+)* ~ "function" ~ WHITESPACE_COMMENT+ ~ function_name ~ WHITESPACE_COMMENT* ~ (type_attribute ~ WHITESPACE_COMMENT*)? ~ "(" ~ function_args? ~  ")" ~ return_type_annotation? ~ (EQUAL ~ WHITESPACE_COMMENT* ~ expr)? }
+function = ${ (PREFIX_KEYWORD ~ WHITESPACE_COMMENT+)* ~ "function" ~ WHITESPACE_COMMENT+ ~ function_name ~ WHITESPACE_COMMENT* ~ (type_attribute ~ WHITESPACE_COMMENT*)? ~ "(" ~ WHITESPACE_COMMENT* ~ function_args? ~ WHITESPACE_COMMENT* ~ ")" ~ return_type_annotation? ~ (EQUAL ~ WHITESPACE_COMMENT* ~ expr)? }
 
 out_type = ${"out" ~ WHITESPACE_COMMENT+ ~ TYPE}
 in_type = ${"in" ~ WHITESPACE_COMMENT+ ~ TYPE}
