@@ -57,7 +57,7 @@ if_else_expr = {"if" ~ "(" ~ condition ~ ")" ~ if ~ "else" ~ else }
 let_value = {expr}
 let_expr = {"let" ~ "(" ~ ident ~ (COLON ~ TYPE)? ~ EQUAL ~ let_value ~ ")" ~ expr}
 
-class_instance = ${"new" ~ (WHITESPACE_COMMENT+ ~ ident_with_opt_dots)? ~ WHITESPACE_COMMENT* ~ object}
+class_instance = ${"new" ~ (WHITESPACE_COMMENT+ ~ TYPE)? ~ WHITESPACE_COMMENT* ~ object}
 
 function_expr_arg = { ident ~ (COLON ~ TYPE)? }
 function_expr = !{"(" ~ (function_expr_arg ~ ("," ~ function_expr_arg)* ~ ","?)* ~ ")" ~ "->" ~ expr}
@@ -68,7 +68,7 @@ globbed_import = _{"import*"}
 fn_call = !{ (nullable_read|globbed_read|globbed_import|ident) ~ "(" ~ (expr ~ ("," ~ expr)* ~ ","?)? ~ ")"}
 
 // operations
-infix  = _{ add|sub|pow|mul|div|div_r|modulo|and|or|comp_equal|comp_not_equal|comp_greater_equal|comp_greater|comp_less_equal|comp_less|null_coalescing  }
+infix  = _{ add|sub|pow|mul|div|div_r|modulo|and|or|pipe|comp_equal|comp_not_equal|comp_greater_equal|comp_greater|comp_less_equal|comp_less|null_coalescing  }
 prefix = _{ neg|logical_not }
 postfix = { non_null }
 
@@ -91,6 +91,8 @@ comp_greater       = { ">" }
 comp_greater_equal = { ">=" }
 comp_less          = { "<" }
 comp_less_equal    = { "<=" }
+
+pipe        = { "|>" }
 
 and         = { "&&" }
 or          = { "||" }
@@ -172,7 +174,8 @@ float = @{ "NaN"|("Infinity"|(basic_int? ~ "." ~ basic_int+ ~ exponent?)|(basic_
 // expr parsed for listing and mappings
 // then in evaluation step we check if the
 // fields are valid
-obj_body = { "{" ~ (property|bracket_field|field_amending|iterable_spread|when_generator|for_generator|expr)* ~ "}" }
+obj_body = { "{" ~ amending_function? ~ (property|bracket_field|field_amending|iterable_spread|when_generator|for_generator|expr)* ~ "}" }
+amending_function = !{ident ~ (","~ident)* ~ "->"}
 object = !{ obj_body ~ (obj_body)* }
 
 // add support for objects amended with {} {} syntax
@@ -233,15 +236,15 @@ class = ${(PREFIX_KEYWORD ~ WHITESPACE_COMMENT+)* ~ "class" ~ WHITESPACE_COMMENT
 // ********
 
 // do not use 'type' cause it's a rust keyword
-TYPE = !{ (default_prefix? ~ (imported_type|basic_type|string|function_type) ~ nullable?) ~ ("|"~(default_prefix? ~ (imported_type|basic_type|string|function_type) ~ nullable?))* }
+TYPE = !{ (default_prefix? ~ (imported_type|basic_type|string|function_type|paren_type) ~ nullable?) ~ ("|"~(default_prefix? ~ (imported_type|basic_type|string|function_type) ~ nullable?))* }
 nullable = _{"?"}
 default_prefix = _{"*"}
 basic_type = {type_with_restraints|type_with_attr|ident}
 type_attribute = {"<" ~ TYPE ~ ("," ~ TYPE)* ~ ">"}
 type_with_attr = !{ ident ~ type_attribute }
-type_with_restraints = !{ (type_with_attr|ident) ~ "(" ~ expr ~ ")"}
+type_with_restraints = !{ (type_with_attr|ident) ~ "(" ~ expr ~ (","~expr)* ~ ")"}
 
 function_type = !{"(" ~ (TYPE ~ ("," ~ TYPE)* ~ ","?)* ~ ")" ~ "->" ~ TYPE}
-
+paren_type = !{"(" ~ TYPE ~ ")"}
 // ex: semver.Version
 imported_type = {(ident ~ ".")* ~ basic_type}

@@ -19,13 +19,8 @@ pub fn lang_ref_code() {
         .filter(|n| {
             // removes exprs present in the doc
             n.attr("class")
-                .map(|x| !x.contains("expression"))
+                .map(|x| !x.contains("expression") && x.contains("language-pkl"))
                 .unwrap_or(false)
-                && !n.text().starts_with("#")
-                && !n.text().starts_with("\"")
-                && n.attr("class")
-                    .map(|x| x.contains("language-pkl"))
-                    .unwrap_or(false)
         })
         .map(|x| re.replace_all(&x.text(), "").to_string())
         .collect::<Vec<_>>();
@@ -35,6 +30,5 @@ pub fn lang_ref_code() {
     let code = code_parts.join("\n");
 
     let parsed = parse(&code);
-    println!("{:?}", parsed);
     assert!(parsed.is_ok());
 }

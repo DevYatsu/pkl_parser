@@ -854,6 +854,7 @@ dependencies = [
  "regex",
  "reqwest",
  "select",
+ "serde_json",
 ]
 
 [[package]]
