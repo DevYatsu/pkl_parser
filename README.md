@@ -1,10 +1,14 @@
 # pkl-parser
 
-This crate exports a parser for Apple's Pkl language.
+`pkl-parser` is a Rust crate that provides a complete parser for Apple's Pkl language.
+This crate is designed to be simple to use, supporting the full Pkl syntax with robust error handling.
+
 
 ## Features
 
-All the Pkl syntax is supported.
+- **Comprehensive Syntax Support**: Supports all syntax elements of the Pkl language.
+- **Pratt Parsing**: Includes a Pratt parser for expression parsing with operator precedence.
+- **Ease of Integration**: Simple API to parse and handle Pkl code in your Rust projects.
 
 ## Installation
 
