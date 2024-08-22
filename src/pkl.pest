@@ -60,7 +60,7 @@ let_expr = {"let" ~ "(" ~ ident ~ (COLON ~ TYPE)? ~ EQUAL ~ let_value ~ ")" ~ ex
 class_instance = ${"new" ~ (WHITESPACE_COMMENT+ ~ TYPE)? ~ WHITESPACE_COMMENT* ~ object}
 
 function_expr_arg = { ident ~ (COLON ~ TYPE)? }
-function_expr = !{"(" ~ (function_expr_arg ~ ("," ~ function_expr_arg)* ~ ","?)* ~ ")" ~ "->" ~ expr}
+function_expr = !{"(" ~ function_args ~ ")" ~ "->" ~ expr}
 
 nullable_read = _{"read?"}
 globbed_read = _{"read*"}
