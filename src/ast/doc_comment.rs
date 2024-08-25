@@ -13,4 +13,4 @@
 ///
 /// * `String` - Stores the content of the documentation comment as a `String`.
 #[derive(Debug, Clone, PartialEq)]
-pub struct DocComment(String);
+pub struct DocComment(pub String);

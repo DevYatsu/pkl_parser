@@ -5,7 +5,7 @@ use pest::{
 };
 use pest_derive::Parser;
 
-use crate::{PklError, PklResult};
+use crate::PklResult;
 
 /// `PklParser` is a parser generated from the `pkl.pest` grammar file.
 /// This struct is used to parse input strings according to the rules defined in the grammar.

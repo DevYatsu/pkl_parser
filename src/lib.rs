@@ -5,6 +5,8 @@ mod ast;
 mod error;
 mod parser;
 
+pub use ast::parse_as_ast;
+
 pub use error::{PklError, PklResult};
 pub use parser::parse_as_pairs;
 pub use parser::pratt;

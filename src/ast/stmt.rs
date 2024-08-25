@@ -6,14 +6,14 @@ use module::Module;
 use property::Property;
 use typealias::TypeAlias;
 
-mod amends;
-mod class;
-mod extends;
-mod function;
-mod import;
-mod module;
-mod property;
-mod typealias;
+pub mod amends;
+pub mod class;
+pub mod extends;
+pub mod function;
+pub mod import;
+pub mod module;
+pub mod property;
+pub mod typealias;
 
 /// Represent any valid Pkl Statement.
 #[derive(Debug, PartialEq, Clone)]

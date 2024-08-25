@@ -13,4 +13,4 @@ use super::expr::Expr;
 /// * `Option<Expr>` - This field holds the expression associated with the annotation.
 /// If the annotation does not contain an expression, this will be `None`.
 #[derive(Debug, Clone, PartialEq)]
-pub struct Annotation(Option<Expr>);
+pub struct Annotation(pub Option<Expr>);

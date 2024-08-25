@@ -1,11 +1,14 @@
 use crate::{parse_as_pairs, PklResult, Rule, Span};
+use annotation::Annotation;
+use doc_comment::DocComment;
 use expr::Expr;
 use stmt::PklStatement;
 
-mod annotation;
-mod doc_comment;
-mod expr;
-mod stmt;
+pub mod annotation;
+pub mod doc_comment;
+pub mod expr;
+mod pairs;
+pub mod stmt;
 
 /// Represents a type in the `Pkl` language.
 ///
@@ -36,14 +39,14 @@ pub struct Type {
     pub restraints: Option<Box<Expr>>,
 }
 
-pub fn parse_as_ast<'a>(src: &str) -> PklResult<Vec<PklStatement<'a>>> {
+pub fn parse_as_ast<'a>(src: &'a str) -> PklResult<Vec<PklStatement<'a>>> {
     let mut pairs = parse_as_pairs(src)?;
     let mut stmts = vec![];
 
     let file = pairs.next().unwrap().into_inner();
 
-    let mut doc_comment: Option<String> = None;
-    // let mut annotations: Option<Vec<_>> = None;
+    let mut doc_comment: Option<DocComment> = None;
+    let mut annotations: Vec<Annotation> = Vec::new();
 
     for element in file {
         match element.as_rule() {
@@ -51,30 +54,33 @@ pub fn parse_as_ast<'a>(src: &str) -> PklResult<Vec<PklStatement<'a>>> {
             Rule::stmt => {
                 let pair = element.into_inner().next().unwrap(/* safe */);
                 let rule = pair.as_rule();
-                match rule {
+
+                let stmt = match rule {
                     Rule::property => {
-                        let prop = match_property(&mut table, pair);
+                        todo!()
+                        // let prop = match_property(&mut table, pair);
                     }
+                    Rule::amends => pairs::amends(pair)?.into(),
+                    Rule::import => pairs::import(pair)?.into(),
+                    Rule::module => pairs::module(pair)?.into(),
+                    Rule::extends => pairs::extends(pair)?.into(),
                     _ => unreachable!(),
-                }
+                };
+                stmts.push(stmt);
             }
-            // then take care of each comment/annotation separately
+
+            // comments done
             Rule::COMMENT => {
                 let pair = element.to_owned().into_inner().next().unwrap();
                 match pair.as_rule() {
                     Rule::doc_comment => {
-                        let mut comment_text = element.as_str().to_string();
-                        comment_text = comment_text
-                            .strip_prefix("///")
-                            .unwrap()
-                            .split("\n///")
-                            .map(|s| if s.trim().len() == 0 { "\n" } else { s })
-                            .collect::<Vec<_>>()
-                            .join(" ");
-
-                        doc_comment = Some(comment_text);
+                        let comment = pairs::doc_comment(element)?;
+                        doc_comment = Some(comment);
                     }
-                    Rule::annotation => {}
+                    Rule::annotation => {
+                        let annotation = pairs::annotation(element)?;
+                        annotations.push(annotation);
+                    }
                     Rule::line_comment => {}
                     Rule::multiline_comment => {}
                     _ => unreachable!(),

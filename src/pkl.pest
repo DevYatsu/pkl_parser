@@ -17,7 +17,7 @@ KEYWORDS = {"typealias"|"module"|"import"|"extends"|"amends"|"function"|"in"|"le
 WHITESPACE = _{ " "|"\t"|"\n"|"\r"|";" }
 SPACE = _{ " "|"\t" }
 
-WHITESPACE_COMMENT = {WHITESPACE|COMMENT|";"}
+WHITESPACE_COMMENT = _{WHITESPACE|COMMENT|";"}
 SPACE_COMMENT = {SPACE|COMMENT}
 
 EQUAL = !{WHITESPACE_COMMENT* ~ "="}
@@ -62,9 +62,9 @@ class_instance = ${"new" ~ (WHITESPACE_COMMENT+ ~ TYPE)? ~ WHITESPACE_COMMENT* ~
 function_expr_arg = { ident ~ (COLON ~ TYPE)? }
 function_expr = !{"(" ~ function_args ~ ")" ~ "->" ~ expr}
 
-nullable_read = _{"read?"}
-globbed_read = _{"read*"}
-globbed_import = _{"import*"}
+nullable_read = {"read?"}
+globbed_read = {"read*"}
+globbed_import = {"import*"}
 fn_call = !{ (nullable_read|globbed_read|globbed_import|ident) ~ "(" ~ (expr ~ ("," ~ expr)* ~ ","?)? ~ ")"}
 
 // operations
@@ -204,8 +204,7 @@ property = ${ (PREFIX_KEYWORD ~ WHITESPACE_COMMENT+)* ~ ident ~ WHITESPACE_COMME
 typealias_params = !{WHITESPACE* ~ ident ~ ("," ~ ident)* ~ WHITESPACE* }
 typealias = ${ "typealias" ~ WHITESPACE_COMMENT+  ~ ident ~ ("<" ~ typealias_params ~ ">")? ~ EQUAL ~ WHITESPACE_COMMENT* ~ TYPE }
 
-module_keyword = @{ ("open" ~ WHITESPACE_COMMENT+)? ~ "module"}
-module = ${ module_keyword ~ WHITESPACE_COMMENT+ ~ ident_with_opt_dots }
+module = ${ (PREFIX_KEYWORD ~ WHITESPACE_COMMENT+)* ~ "module" ~ WHITESPACE_COMMENT+ ~ ident_with_opt_dots }
 
 src = {"\"" ~ (!"\"" ~ ANY)+ ~ "\""}
 

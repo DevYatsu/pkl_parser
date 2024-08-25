@@ -1,4 +1,4 @@
-use super::ModifiersList;
+use super::{ModifiersList, PklStatement};
 use crate::{ast::Type, Span};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -15,5 +15,11 @@ impl<'a> TypeAlias<'a> {
     }
     pub fn modifier_not_applicable_err(&self, modifier: &str) -> String {
         format!("Modifier `{modifier}` is not applicable to type aliases.")
+    }
+}
+
+impl<'a> From<TypeAlias<'a>> for PklStatement<'a> {
+    fn from(value: TypeAlias<'a>) -> Self {
+        PklStatement::TypeAlias(value)
     }
 }
