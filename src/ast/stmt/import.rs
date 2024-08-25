@@ -4,8 +4,8 @@ use super::PklStatement;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Import<'a> {
-    pub name: &'a str,
-    pub local_name: Option<&'a str>,
+    pub name: (&'a str, Span),
+    pub local_name: Option<(&'a str, Span)>,
     pub span: Span,
     pub is_globbed: bool,
 }

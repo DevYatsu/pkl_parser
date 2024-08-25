@@ -1,6 +1,6 @@
 use super::ModifiersList;
 use crate::{
-    ast::{expr::Expr, Type},
+    ast::{expr::Expr, types::Type},
     Span,
 };
 

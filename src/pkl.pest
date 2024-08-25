@@ -20,8 +20,8 @@ SPACE = _{ " "|"\t" }
 WHITESPACE_COMMENT = _{WHITESPACE|COMMENT|";"}
 SPACE_COMMENT = {SPACE|COMMENT}
 
-EQUAL = !{WHITESPACE_COMMENT* ~ "="}
-COLON = !{WHITESPACE_COMMENT* ~ ":"}
+EQUAL = {WHITESPACE_COMMENT* ~ "="}
+COLON = {WHITESPACE_COMMENT* ~ ":"}
 
 line_comment = _{ "//" ~ (!"\n" ~ ANY)* }
 doc_comment = @{ "///" ~ (!("\n"~!(SPACE*~"///")) ~ ANY)* }
@@ -201,8 +201,8 @@ for_generator = !{ "for" ~ "(" ~ ident ~ ("," ~ ident)* ~ for_in ~ expr ~ ")" ~ 
 
 property = ${ (PREFIX_KEYWORD ~ WHITESPACE_COMMENT+)* ~ ident ~ WHITESPACE_COMMENT* ~ (object|((COLON ~ WHITESPACE_COMMENT* ~ TYPE)? ~ EQUAL ~ WHITESPACE_COMMENT* ~ expr)|(COLON ~ WHITESPACE_COMMENT* ~ TYPE))}
 
-typealias_params = !{WHITESPACE* ~ ident ~ ("," ~ ident)* ~ WHITESPACE* }
-typealias = ${ "typealias" ~ WHITESPACE_COMMENT+  ~ ident ~ ("<" ~ typealias_params ~ ">")? ~ EQUAL ~ WHITESPACE_COMMENT* ~ TYPE }
+typealias_params = !{ident ~ ("," ~ ident)* }
+typealias = ${ "typealias" ~ WHITESPACE_COMMENT+  ~ ident ~ ("<" ~ WHITESPACE* ~ typealias_params  ~ WHITESPACE* ~ ">")? ~ EQUAL ~ WHITESPACE_COMMENT* ~ TYPE }
 
 module = ${ (PREFIX_KEYWORD ~ WHITESPACE_COMMENT+)* ~ "module" ~ WHITESPACE_COMMENT+ ~ ident_with_opt_dots }
 
@@ -235,15 +235,12 @@ class = ${(PREFIX_KEYWORD ~ WHITESPACE_COMMENT+)* ~ "class" ~ WHITESPACE_COMMENT
 // ********
 
 // do not use 'type' cause it's a rust keyword
-TYPE = !{ (default_prefix? ~ (imported_type|basic_type|string|function_type|paren_type) ~ nullable?) ~ ("|"~(default_prefix? ~ (imported_type|basic_type|string|function_type) ~ nullable?))* }
-nullable = _{"?"}
-default_prefix = _{"*"}
-basic_type = {type_with_restraints|type_with_attr|ident}
+TYPE = !{ (default_prefix? ~ (primary_type|string|function_type|paren_type) ~ nullable?) ~ (union~(default_prefix? ~ (primary_type|string|function_type) ~ nullable?))* }
+union = @{"|"}
+nullable = @{"?"}
+default_prefix = @{"*"}
+primary_type = {ident_with_opt_dots ~ type_attribute? ~ ("(" ~ expr ~ (","~expr)* ~ ")")?}
 type_attribute = {"<" ~ TYPE ~ ("," ~ TYPE)* ~ ">"}
-type_with_attr = !{ ident ~ type_attribute }
-type_with_restraints = !{ (type_with_attr|ident) ~ "(" ~ expr ~ (","~expr)* ~ ")"}
 
 function_type = !{"(" ~ (TYPE ~ ("," ~ TYPE)* ~ ","?)* ~ ")" ~ "->" ~ TYPE}
 paren_type = !{"(" ~ TYPE ~ ")"}
-// ex: semver.Version
-imported_type = {(ident ~ ".")* ~ basic_type}

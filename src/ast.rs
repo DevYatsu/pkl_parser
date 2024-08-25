@@ -1,7 +1,6 @@
-use crate::{parse_as_pairs, PklResult, Rule, Span};
+use crate::{parse_as_pairs, PklResult, Rule};
 use annotation::Annotation;
 use doc_comment::DocComment;
-use expr::Expr;
 use stmt::PklStatement;
 
 pub mod annotation;
@@ -9,35 +8,7 @@ pub mod doc_comment;
 pub mod expr;
 mod pairs;
 pub mod stmt;
-
-/// Represents a type in the `Pkl` language.
-///
-/// # Overview
-///
-/// The `Type` struct encapsulates a type definition within the `Pkl` language.
-/// A type typically has a name, optional parameters, and optional constraints
-/// or restraints associated with it. This struct is designed to hold all
-/// relevant information needed to represent a type in the `Pkl` abstract
-/// syntax tree (AST).
-///
-/// # Fields
-///
-/// * `name: (String, Span)` - This tuple contains the name of the type as a `String`
-/// along with its `Span`, which represents the location of the type name in the source code.
-///
-/// * `params: Option<Vec<(Type, Span)>>` - An optional vector of type parameters,
-/// each represented by a tuple containing a `Type` and its associated `Span`.
-/// If the type has no parameters, this will be `None`.
-///
-/// * `restraints: Option<Box<Expr>>` - An optional expression that imposes
-/// constraints or restraints on the type. This could be used to enforce certain
-/// conditions or requirements on the type. If there are no restraints, this will be `None`.
-#[derive(Debug, Clone, PartialEq)]
-pub struct Type {
-    pub name: (String, Span),
-    pub params: Option<Vec<(Type, Span)>>,
-    pub restraints: Option<Box<Expr>>,
-}
+pub mod types;
 
 pub fn parse_as_ast<'a>(src: &'a str) -> PklResult<Vec<PklStatement<'a>>> {
     let mut pairs = parse_as_pairs(src)?;
@@ -64,6 +35,7 @@ pub fn parse_as_ast<'a>(src: &'a str) -> PklResult<Vec<PklStatement<'a>>> {
                     Rule::import => pairs::import(pair)?.into(),
                     Rule::module => pairs::module(pair)?.into(),
                     Rule::extends => pairs::extends(pair)?.into(),
+                    Rule::typealias => pairs::extends(pair)?.into(),
                     _ => unreachable!(),
                 };
                 stmts.push(stmt);

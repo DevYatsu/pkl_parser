@@ -1,5 +1,5 @@
 use super::{ModifiersList, PklStatement};
-use crate::{ast::Type, Span};
+use crate::{ast::types::Type, Span};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TypeAlias<'a> {

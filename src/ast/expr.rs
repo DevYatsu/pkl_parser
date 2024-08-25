@@ -13,7 +13,7 @@ use self::{
     str::Str,
 };
 
-use super::Type;
+use super::types::Type;
 
 pub mod binary;
 pub mod boxed;
