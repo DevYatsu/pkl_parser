@@ -1,4 +1,4 @@
-use pkl_parser::{parse, Rule};
+use pkl_parser::{parse_as_pairs, Rule};
 use std::{fs, time::Instant};
 
 fn main() {
@@ -7,7 +7,7 @@ fn main() {
     let src = src.repeat(1);
     let time = Instant::now();
 
-    let mut result = parse(&src).unwrap();
+    let mut result = parse_as_pairs(&src).unwrap();
 
     let file = result.next().unwrap().into_inner();
 

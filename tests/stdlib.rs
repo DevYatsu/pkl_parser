@@ -1,7 +1,7 @@
 // in here we extract all the code present in the language reference
 // and we pass it into our parser to check if it parses the code successfully
 
-use pkl_parser::parse;
+use pkl_parser::parse_as_pairs as parse;
 use reqwest::blocking::Client;
 use reqwest::header::{
     HeaderMap, HeaderValue, ACCEPT, ACCEPT_ENCODING, ACCEPT_LANGUAGE, CACHE_CONTROL, CONNECTION,

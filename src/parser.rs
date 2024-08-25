@@ -5,6 +5,8 @@ use pest::{
 };
 use pest_derive::Parser;
 
+use crate::{PklError, PklResult};
+
 /// `PklParser` is a parser generated from the `pkl.pest` grammar file.
 /// This struct is used to parse input strings according to the rules defined in the grammar.
 #[derive(Parser)]
@@ -20,13 +22,13 @@ pub struct PklParser;
 /// # Returns
 ///
 /// * `Ok(Pairs<Rule>)` - A successful result containing a `Pairs` iterator over the parsed tokens.
-/// * `Err(pest::error::Error<Rule>)` - An error that occurred during parsing, encapsulated in a `pest` error.
+/// * `Err(PklError)` - A Pkl Error, with variant Parse as error occurred during parsing, encapsulated in a `pest` error.
 ///
 /// # Example
 ///
-/// ```rust
+/// ```ignore
 /// let source = "your source code here";
-/// let parsed = parse(source);
+/// let parsed = parse_as_pairs(source);
 /// match parsed {
 ///     Ok(pairs) => {
 ///         for pair in pairs {
@@ -38,7 +40,7 @@ pub struct PklParser;
 ///     }
 /// }
 /// ```
-pub fn parse(src: &str) -> Result<Pairs<Rule>, pest::error::Error<Rule>> {
+pub fn parse_as_pairs(src: &str) -> PklResult<Pairs<Rule>> {
     let result = PklParser::parse(Rule::file, src)?;
 
     Ok(result)
@@ -55,7 +57,7 @@ pub fn parse(src: &str) -> Result<Pairs<Rule>, pest::error::Error<Rule>> {
 ///
 /// # Example
 ///
-/// ```rust
+/// ```ignore
 /// let pratt_parser = pratt();
 /// // Use the pratt_parser to evaluate expressions
 /// ```

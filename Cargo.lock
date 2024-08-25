@@ -855,6 +855,7 @@ dependencies = [
  "reqwest",
  "select",
  "serde_json",
+ "thiserror",
 ]
 
 [[package]]
