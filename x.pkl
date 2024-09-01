@@ -1,0 +1,6 @@
+
+import* "test.pkl" as x
+amends "test.pkl"
+extends "test.pkl"
+
+open module com.Animals.Test

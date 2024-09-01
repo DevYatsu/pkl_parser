@@ -47,6 +47,20 @@ fn ident(element: Pair<Rule>) -> PklResult<(&str, Span)> {
     unreachable!("ident")
 }
 
+fn type_attribute(element: Pair<Rule>) -> PklResult<Vec<(Type, Span)>> {
+    let mut types = Vec::new();
+
+    for t in element.into_inner() {
+        let span = t.as_span().as_rng();
+        match t.as_rule() {
+            Rule::TYPE => types.push((pkl_type(t)?, span)),
+            _ => unreachable!(),
+        }
+    }
+
+    Ok(types)
+}
+
 fn pkl_type(element: Pair<Rule>) -> PklResult<Type> {
     let mut _type = Type::default();
 
@@ -60,8 +74,9 @@ fn pkl_type(element: Pair<Rule>) -> PklResult<Type> {
                         Rule::primary_type => {
                             for t in part.into_inner() {
                                 match t.as_rule() {
-                                    Rule::ident_with_opt_dots => {}
-                                    Rule::type_attribute => {}
+                                    Rule::ident_with_opt_dots => _type
+                                        .set_name((t.as_str().to_owned(), t.as_span().as_rng())),
+                                    Rule::type_attribute => _type.set_params(type_attribute(t)?),
                                     Rule::expr => {}
                                     _ => unreachable!(),
                                 }
