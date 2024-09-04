@@ -4,3 +4,10 @@ amends "test.pkl"
 extends "test.pkl"
 
 open module com.Animals.Test
+
+// line comm
+
+/// test doc comment
+/// still doc comment dude
+@Annotation 
+typealias Test<T,Q,Z> = Whatever<T>

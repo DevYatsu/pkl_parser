@@ -17,7 +17,7 @@ pub fn parse_as_ast<'a>(src: &'a str) -> PklResult<Vec<PklStatement<'a>>> {
     let file = pairs.next().unwrap().into_inner();
 
     let mut doc_comment: Option<DocComment> = None;
-    let mut annotations: Vec<Annotation> = Vec::new();
+    let mut annotations: Option<Vec<Annotation>> = None;
 
     for element in file {
         match element.as_rule() {
@@ -26,32 +26,48 @@ pub fn parse_as_ast<'a>(src: &'a str) -> PklResult<Vec<PklStatement<'a>>> {
                 let pair = element.into_inner().next().unwrap(/* safe */);
                 let rule = pair.as_rule();
 
-                let stmt = match rule {
+                let mut stmt = match rule {
                     Rule::property => {
                         todo!()
-                        // let prop = match_property(&mut table, pair);
+                        // let prop = match_property(&mut table, pair);c
                     }
                     Rule::amends => pairs::amends(pair)?.into(),
                     Rule::import => pairs::import(pair)?.into(),
                     Rule::module => pairs::module(pair)?.into(),
                     Rule::extends => pairs::extends(pair)?.into(),
-                    Rule::typealias => pairs::extends(pair)?.into(),
+                    Rule::typealias => pairs::typealias(pair)?.into(),
                     _ => unreachable!(),
                 };
+
+                if annotations.is_some() {
+                    stmt = PklStatement::WithAnnotation(annotations.take().unwrap(), Box::new(stmt))
+                }
+                if doc_comment.is_some() {
+                    stmt = PklStatement::WithDocComment(doc_comment.take().unwrap(), Box::new(stmt))
+                }
+
                 stmts.push(stmt);
             }
 
             // comments done
             Rule::COMMENT => {
                 let pair = element.to_owned().into_inner().next().unwrap();
+
                 match pair.as_rule() {
                     Rule::doc_comment => {
-                        let comment = pairs::doc_comment(element)?;
+                        let comment = pairs::doc_comment(pair)?;
                         doc_comment = Some(comment);
                     }
                     Rule::annotation => {
-                        let annotation = pairs::annotation(element)?;
-                        annotations.push(annotation);
+                        let annotation = pairs::annotation(pair)?;
+
+                        annotations = if annotations.is_some() {
+                            let mut x = annotations.take().unwrap();
+                            x.push(annotation);
+                            Some(x)
+                        } else {
+                            Some(vec![annotation])
+                        };
                     }
                     Rule::line_comment => {}
                     Rule::multiline_comment => {}

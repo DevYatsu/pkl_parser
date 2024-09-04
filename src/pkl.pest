@@ -20,12 +20,12 @@ SPACE = _{ " "|"\t" }
 WHITESPACE_COMMENT = _{WHITESPACE|COMMENT|";"}
 SPACE_COMMENT = {SPACE|COMMENT}
 
-EQUAL = {WHITESPACE_COMMENT* ~ "="}
-COLON = {WHITESPACE_COMMENT* ~ ":"}
+EQUAL = _{WHITESPACE_COMMENT* ~ "="}
+COLON = _{WHITESPACE_COMMENT* ~ ":"}
 
-line_comment = _{ "//" ~ (!"\n" ~ ANY)* }
-doc_comment = @{ "///" ~ (!("\n"~!(SPACE*~"///")) ~ ANY)* }
-multiline_comment = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
+line_comment = ${ "//" ~ (!"\n" ~ ANY)* }
+doc_comment = ${ "///" ~ (!("\n"~!(SPACE*~"///")) ~ ANY)* }
+multiline_comment = ${ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
 annotation = !{"@" ~ ident ~ obj_body?}
 
 COMMENT = { doc_comment|line_comment|multiline_comment|annotation }

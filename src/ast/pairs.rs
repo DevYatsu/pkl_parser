@@ -64,82 +64,74 @@ fn type_attribute(element: Pair<Rule>) -> PklResult<Vec<(Type, Span)>> {
 fn pkl_type(element: Pair<Rule>) -> PklResult<Type> {
     let mut _type = Type::default();
 
-    for x in element.into_inner() {
-        match x.as_rule() {
-            Rule::TYPE => {
-                for part in x.into_inner() {
-                    match part.as_rule() {
-                        Rule::default_prefix => _type.set_default(),
+    for part in element.into_inner() {
+        match part.as_rule() {
+            Rule::default_prefix => _type.set_default(),
 
-                        Rule::primary_type => {
-                            for t in part.into_inner() {
-                                match t.as_rule() {
-                                    Rule::ident_with_opt_dots => _type
-                                        .set_name((t.as_str().to_owned(), t.as_span().as_rng())),
-                                    Rule::type_attribute => _type.set_params(type_attribute(t)?),
-                                    Rule::expr => {}
-                                    _ => unreachable!(),
-                                }
-                            }
+            Rule::primary_type => {
+                for t in part.into_inner() {
+                    match t.as_rule() {
+                        Rule::ident_with_opt_dots => {
+                            _type.set_name((t.as_str().to_owned(), t.as_span().as_rng()))
                         }
-                        Rule::string => {
-                            _type = Type::String {
-                                value: (
-                                    pkl_str_content(part.as_str()).to_owned(),
-                                    part.as_span().as_rng(),
-                                ),
-                                is_nullable: false,
-                                is_default: _type.is_default(),
-                            }
-                        }
-                        Rule::function_type => {
-                            todo!()
-                        }
-                        Rule::paren_type => {
-                            for t in part.into_inner() {
-                                match t.as_rule() {
-                                    Rule::TYPE => {
-                                        let paren_type = pkl_type(t)?;
-                                        match _type {
-                                            Type::Union(_, _) => {
-                                                let is_default = _type.is_default();
-                                                _type = Type::Union(
-                                                    Box::new(_type),
-                                                    Box::new(Type::Parenthesized {
-                                                        value: Box::new(paren_type),
-                                                        is_nullable: false,
-                                                        is_default,
-                                                    }),
-                                                );
-                                            }
-                                            _ => {
-                                                _type = Type::Parenthesized {
-                                                    value: Box::new(paren_type),
-                                                    is_nullable: false,
-                                                    is_default: _type.is_default(),
-                                                };
-                                            }
-                                        };
-                                    }
-                                    _ => unreachable!(),
-                                }
-                            }
-                        }
-
-                        Rule::nullable => _type.set_nullable(),
-                        Rule::union => {
-                            _type = Type::Union(Box::new(_type), Box::new(Type::default()))
-                        }
-
+                        Rule::type_attribute => _type.set_params(type_attribute(t)?),
+                        Rule::expr => {}
                         _ => unreachable!(),
                     }
                 }
             }
+            Rule::string => {
+                _type = Type::String {
+                    value: (
+                        pkl_str_content(part.as_str()).to_owned(),
+                        part.as_span().as_rng(),
+                    ),
+                    is_nullable: false,
+                    is_default: _type.is_default(),
+                }
+            }
+            Rule::function_type => {
+                todo!()
+            }
+            Rule::paren_type => {
+                for t in part.into_inner() {
+                    match t.as_rule() {
+                        Rule::TYPE => {
+                            let paren_type = pkl_type(t)?;
+                            match _type {
+                                Type::Union(_, _) => {
+                                    let is_default = _type.is_default();
+                                    _type = Type::Union(
+                                        Box::new(_type),
+                                        Box::new(Type::Parenthesized {
+                                            value: Box::new(paren_type),
+                                            is_nullable: false,
+                                            is_default,
+                                        }),
+                                    );
+                                }
+                                _ => {
+                                    _type = Type::Parenthesized {
+                                        value: Box::new(paren_type),
+                                        is_nullable: false,
+                                        is_default: _type.is_default(),
+                                    };
+                                }
+                            };
+                        }
+                        _ => unreachable!(),
+                    }
+                }
+            }
+
+            Rule::nullable => _type.set_nullable(),
+            Rule::union => _type = Type::Union(Box::new(_type), Box::new(Type::default())),
+
             _ => unreachable!("type"),
         }
     }
 
-    unreachable!("type")
+    Ok(_type)
 }
 
 fn expr(element: Pair<Rule>) -> PklResult<Expr> {
@@ -160,14 +152,22 @@ pub fn doc_comment(element: Pair<Rule>) -> PklResult<DocComment> {
 }
 
 pub fn annotation(element: Pair<Rule>) -> PklResult<Annotation> {
-    for annotation_expr in element.into_inner() {
-        match annotation_expr.as_rule() {
-            Rule::expr => return Ok(Annotation(Some(expr(annotation_expr)?))),
+    let mut name = None;
+
+    for annotation in element.into_inner() {
+        match annotation.as_rule() {
+            Rule::ident => name = Some(annotation.as_str()),
+            Rule::obj_body => {
+                return Ok(Annotation(
+                    name.unwrap().to_owned(),
+                    Some(expr(annotation)?),
+                ))
+            }
             _ => unreachable!(),
         }
     }
 
-    Ok(Annotation(None))
+    Ok(Annotation(name.unwrap().to_owned(), None))
 }
 
 pub fn amends(element: Pair<Rule>) -> PklResult<Amends> {
@@ -266,12 +266,13 @@ pub fn typealias(element: Pair<Rule>) -> PklResult<TypeAlias> {
     let mut refering_type = None;
 
     for inner_elements in element.into_inner() {
+        println!("{:?}", inner_elements);
         match inner_elements.as_rule() {
             Rule::PREFIX_KEYWORD => {
                 modifiers.push(inner_elements.as_str());
             }
             Rule::ident => {
-                name = ident(inner_elements)?;
+                name = (inner_elements.as_str(), inner_elements.as_span().as_rng());
             }
             Rule::typealias_params => {
                 attributes = idents(inner_elements)?;

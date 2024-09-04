@@ -6,6 +6,8 @@ use module::Module;
 use property::Property;
 use typealias::TypeAlias;
 
+use super::{annotation::Annotation, doc_comment::DocComment};
+
 pub mod amends;
 pub mod class;
 pub mod extends;
@@ -44,6 +46,9 @@ pub enum PklStatement<'a> {
     /// not in a variable creating in the context
     /// containing the import values.
     ExtendsClause(Extends<'a>),
+
+    WithAnnotation(Vec<Annotation>, Box<PklStatement<'a>>),
+    WithDocComment(DocComment, Box<PklStatement<'a>>),
 }
 
 #[derive(Debug, Clone, PartialEq)]
